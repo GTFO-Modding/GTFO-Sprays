@@ -21,7 +21,7 @@ namespace Sprays
             NetworkAPI.RegisterEvent<NetworkedSprays.pReceiveSprayData>("ApplyPlayerSpray", NetworkedSprays.OnReceiveApplySpray);
             NetworkAPI.RegisterEvent<NetworkedSprays.pSprayData>("PostSprayData", NetworkedSprays.OnReceiveSprayData);
             NetworkAPI.RegisterEvent<byte>("RequestSprayData", NetworkedSprays.OnReceiveSprayDataRequest);
-            NetworkAPI.RegisterEvent<byte>("PostSprayData", NetworkedSprays.OnReceivePostSprayRequest);
+            NetworkAPI.RegisterEvent<byte>("ClientReplySprayData", NetworkedSprays.OnReceivePostSprayRequest);
 
             UnhollowerRuntimeLib.ClassInjector.RegisterTypeInIl2Cpp<SprayInputHandler>();
         }

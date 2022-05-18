@@ -1,6 +1,7 @@
 ﻿using GTFO.API;
 using HarmonyLib;
 using Player;
+using SNetwork;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,7 +17,8 @@ namespace Sprays
         {
             L.Debug("Player spawned, setting up sprays");
             NetworkedSprays.Setup();
-            NetworkedSprays.Current.PostLocalSprayData();
+
+            if (SNet.IsMaster) NetworkAPI.InvokeEvent("RequestSprayData", 0);
         }
 
         [HarmonyPostfix]
@@ -25,17 +27,18 @@ namespace Sprays
         {
             L.Debug("Player registered, setting up sprays");
             NetworkedSprays.Setup();
-            NetworkedSprays.Current.PostLocalSprayData();
-            NetworkAPI.InvokeEvent("RequestSprayData", 0);
+
+            if (SNet.IsMaster) NetworkAPI.InvokeEvent("RequestSprayData", 0);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.UnregisterPlayerAgent))]
         public static void OnUnregisterPlayerAgent()
         {
-            L.Debug("Player registered, setting up sprays");
+            L.Debug("Player unregistered, setting up sprays");
             NetworkedSprays.Setup();
-            NetworkedSprays.Current.PostLocalSprayData();
+
+            if (SNet.IsMaster) NetworkAPI.InvokeEvent("RequestSprayData", 0);
         }
     }
 }

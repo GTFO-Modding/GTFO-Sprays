@@ -47,21 +47,28 @@ namespace Sprays
         }
         public static void OnReceiveSprayDataRequest(ulong x, byte y)
         {
+            L.Debug("Recieved spray data request from host. Sending our own spray data and requesting other clients to send theirs");
             Setup();
             Current.PostLocalSprayData();
-            NetworkAPI.InvokeEvent("PostSprayData", 0);
+
+            NetworkAPI.InvokeEvent("ClientReplySprayData", 0);
         }
         public static void OnReceivePostSprayRequest(ulong x, byte y)
         {
+            L.Debug("Received spray data request from client, sending our spray data to them");
             Current.PostLocalSprayData();
         }
-
         public static void OnReceiveClearSprayData(ulong x, int slot)
         {
+            L.Debug($"Clearing spray data for player {slot}");
             Current.m_PlayerSprays[slot] = null;
-            Current.m_PlayerSprayDecals[slot] = null;
-        }
 
+            if (Current.m_PlayerSprayDecals[slot] != null)
+            {
+                Current.m_PlayerSprayDecals[slot].Shown(false);
+                Current.m_PlayerSprayDecals[slot] = null;
+            }
+        }
         public static void OnReceiveSprayData(ulong x, pSprayData sprayData)
         {
             Buffer.BlockCopy(sprayData.RawTextureData, 0, Current.m_PlayerImageData[sprayData.PlayerSlot], sprayData.RawDataOffset, IMAGEPACKET_CHUNKSIZE);
@@ -73,64 +80,16 @@ namespace Sprays
             sprayTex.LoadImage(Current.m_PlayerImageData[sprayData.PlayerSlot]);
             Current.m_PlayerSprays[sprayData.PlayerSlot] = sprayTex;
         }
-
-        public void PostLocalSprayData()
-        {
-            var slot = PlayerManager.GetLocalPlayerSlotIndex();
-            var chunkCount = Math.Ceiling(s_RawTextureData.Length / (decimal)IMAGEPACKET_CHUNKSIZE);
-            var chunk = new byte[IMAGEPACKET_CHUNKSIZE];
-
-            NetworkAPI.InvokeEvent("ClearPlayerSpray", slot);
-            
-            pSprayData sprayDataChunk;
-
-            for (var i = 0; i < chunkCount; i++)
-            {
-                Array.Copy(s_RawTextureData, i * IMAGEPACKET_CHUNKSIZE, chunk, 0, IMAGEPACKET_CHUNKSIZE);
-
-                sprayDataChunk = new pSprayData()
-                {
-                    PlayerSlot = slot,
-                    RawDataOffset = i * IMAGEPACKET_CHUNKSIZE,
-                    RawTextureData = chunk,
-                    FinalChunk = (i + 1 == chunkCount)
-                };
-
-                NetworkAPI.InvokeEvent("PostSprayData", sprayDataChunk);
-            }
-
-            m_PlayerSprays[slot] = s_LocalSpray;
-        }
-
-        public void SyncApplySpray()
-        {
-            var slot = PlayerManager.GetLocalPlayerSlotIndex();
-            var localPlayer = PlayerManager.GetLocalPlayerAgent();
-            var rayHit = localPlayer.FPSCamera.m_camRayHit;
-
-            var data = new pReceiveSprayData()
-            {
-                PosX = rayHit.point.x,
-                PosY = rayHit.point.y,
-                PosZ = rayHit.point.z,
-
-                RotX = rayHit.normal.x,
-                RotY = rayHit.normal.y,
-                RotZ = rayHit.normal.z,
-
-                Slot = slot
-            };
-
-            NetworkAPI.InvokeEvent("ApplyPlayerSpray", data);
-            OnReceiveApplySpray(0, data);
-        }
-
         public static void OnReceiveApplySpray(ulong x, pReceiveSprayData data)
         {
+            L.Debug($"Received spray application action!\npos: {data.PosX},{data.PosY},{data.PosZ}\nrot: {data.RotX},{data.RotY},{data.RotZ}");
+
             var player = PlayerManager.Current.GetPlayerAgentInSlot(data.Slot);
 
             if (Current.m_PlayerSprayDecals[data.Slot] == null)
             {
+                L.Debug("Initializing spray decal");
+
                 var sprayDecalShader = Shader.Find("Cell/Decal/DecalDeferredBlend");
                 var sprayDecalMat = new Material(sprayDecalShader);
                 var sprayGO = new GameObject("SprayGO");
@@ -157,10 +116,66 @@ namespace Sprays
         }
 
 
+
+        public void PostLocalSprayData()
+        {
+            L.Debug("Sending spray image data to all connected players");
+
+            var slot = PlayerManager.GetLocalPlayerSlotIndex();
+            var chunkCount = Math.Ceiling(s_RawTextureData.Length / (decimal)IMAGEPACKET_CHUNKSIZE);
+            var chunk = new byte[IMAGEPACKET_CHUNKSIZE];
+            
+            pSprayData sprayDataChunk;
+
+            for (var i = 0; i < chunkCount; i++)
+            {
+                Array.Copy(s_RawTextureData, i * IMAGEPACKET_CHUNKSIZE, chunk, 0, IMAGEPACKET_CHUNKSIZE);
+
+                sprayDataChunk = new pSprayData()
+                {
+                    PlayerSlot = slot,
+                    RawDataOffset = i * IMAGEPACKET_CHUNKSIZE,
+                    RawTextureData = chunk,
+                    FinalChunk = (i + 1 == chunkCount)
+                };
+
+                NetworkAPI.InvokeEvent("PostSprayData", sprayDataChunk);
+            }
+
+            m_PlayerSprays[slot] = s_LocalSpray;
+        }
+
+        public void SyncApplySpray()
+        {
+            L.Debug("SyncApplySpray() - Drawing spray");
+
+            var slot = PlayerManager.GetLocalPlayerSlotIndex();
+            var localPlayer = PlayerManager.GetLocalPlayerAgent();
+            var rayHit = localPlayer.FPSCamera.m_camRayHit;
+
+            var data = new pReceiveSprayData()
+            {
+                PosX = rayHit.point.x,
+                PosY = rayHit.point.y,
+                PosZ = rayHit.point.z,
+
+                RotX = rayHit.normal.x,
+                RotY = rayHit.normal.y,
+                RotZ = rayHit.normal.z,
+
+                Slot = slot
+            };
+
+            NetworkAPI.InvokeEvent("ApplyPlayerSpray", data);
+            OnReceiveApplySpray(0, data);
+        }
+
+
+
         public const int LIMIT_FILESIZE = 4194304;
         public const int IMAGEPACKET_CHUNKSIZE = 512;
-        public const int SPRAY_WIDTH = 768;
-        public const int SPRAY_HEIGHT = 768;
+        public const int SPRAY_WIDTH = 2048;
+        public const int SPRAY_HEIGHT = 2048;
 
         public static NetworkedSprays Current;
         public static bool s_IsSetup = false;
