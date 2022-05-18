@@ -82,14 +82,11 @@ namespace Sprays
         }
         public static void OnReceiveApplySpray(ulong x, pReceiveSprayData data)
         {
-            L.Debug($"Received spray application action!\npos: {data.PosX},{data.PosY},{data.PosZ}\nrot: {data.RotX},{data.RotY},{data.RotZ}");
 
             var player = PlayerManager.Current.GetPlayerAgentInSlot(data.Slot);
 
             if (Current.m_PlayerSprayDecals[data.Slot] == null)
             {
-                L.Debug("Initializing spray decal");
-
                 var sprayDecalShader = Shader.Find("Cell/Decal/DecalDeferredBlend");
                 var sprayDecalMat = new Material(sprayDecalShader);
                 var sprayGO = new GameObject("SprayGO");
@@ -147,8 +144,6 @@ namespace Sprays
 
         public void SyncApplySpray()
         {
-            L.Debug("SyncApplySpray() - Drawing spray");
-
             var slot = PlayerManager.GetLocalPlayerSlotIndex();
             var localPlayer = PlayerManager.GetLocalPlayerAgent();
             var rayHit = localPlayer.FPSCamera.m_camRayHit;
