@@ -33,8 +33,8 @@ namespace Sprays
 
             s_LocalSpray = new Texture2D(SPRAY_WIDTH, SPRAY_HEIGHT);
             s_LocalSpray.filterMode = FilterMode.Point;
-
             s_LocalSpray.LoadImage(s_RawTextureData);
+            Current.m_PlayerSprays[PlayerManager.GetLocalPlayerSlotIndex()] = s_LocalSpray;
 
             if (!s_IsSetup)
             {
