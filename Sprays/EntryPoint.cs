@@ -47,13 +47,6 @@ namespace Sprays
                     RuntimeLookup.LocalSprays.Add(localSpray);
                 }
             };
-
-            //NetworkAPI.RegisterEvent<int>("ClearPlayerSpray", NetworkedSprays.OnReceiveClearSprayData);
-            //NetworkAPI.RegisterEvent<NetworkedSprays.pReceiveSprayData>("ApplyPlayerSpray", NetworkedSprays.OnReceiveApplySpray);
-            //NetworkAPI.RegisterEvent<NetworkedSprays.pSprayData>("PostSprayData", NetworkedSprays.OnReceiveSprayData);
-            //NetworkAPI.RegisterEvent<byte>("RequestSprayData", NetworkedSprays.OnReceiveSprayDataRequest);
-            //NetworkAPI.RegisterEvent<byte>("ClientReplySprayData", NetworkedSprays.OnReceivePostSprayRequest);
-
             AddComponent<SprayInputHandler>();
         }
 
