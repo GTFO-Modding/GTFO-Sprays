@@ -1,4 +1,5 @@
 ﻿using BepInEx.Logging;
+using System.Runtime.CompilerServices;
 
 namespace Sprays
 {
@@ -17,11 +18,13 @@ namespace Sprays
 
         // Helper method for formatting messages, currently converts the provided
         // 'msg' object to a string, but it can be extended however you want
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string Format(object msg) => msg.ToString();
 
         // Helper methods for logging
 
         public static void Info(object data) => _logger.LogMessage(Format(data));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Verbose(object data)
         {
             // This block of code will only compile if the user is compiling in Debug mode
@@ -32,6 +35,7 @@ namespace Sprays
 #endif
         }
         public static void Debug(object data) => _logger.LogDebug(Format(data));
+        public static void Warn(object data) => _logger.LogWarning(Format(data));
         public static void Error(object data) => _logger.LogError(Format(data));
     }
 }

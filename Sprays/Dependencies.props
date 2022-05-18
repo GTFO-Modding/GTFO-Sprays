@@ -37,8 +37,6 @@
   <!-- GTFO-API-->
   <ItemGroup>
     <Reference Include="$(PluginsFolder)/GTFO-API.dll" Private="false" />
-    <Reference Include="$(PluginsFolder)/dakkhuza-MTFO/MTFO.dll" Private="false" />
-    <Reference Include="$(PluginsFolder)/MccadCustomEnemyPack.dll" Private="false" />
   </ItemGroup>
 
 </Project>

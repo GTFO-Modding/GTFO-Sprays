@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="Dependencies.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -14,7 +14,6 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,13 +26,4 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="EntryPoint.cs" />
-    <Compile Include="L.cs" />
-    <Compile Include="NetworkedSprays.cs" />
-    <Compile Include="Patch.cs" />
-    <Compile Include="SprayInputHandler.cs" />
-    <None Include="Dependencies.props" />
-    <None Include="GameFolder.props" />
-  </ItemGroup>
 </Project>

@@ -3,11 +3,18 @@ using BepInEx.Configuration;
 using BepInEx.IL2CPP;
 using GTFO.API;
 using HarmonyLib;
+using LevelGeneration;
+using SNetwork;
+using Sprays.Net.Packets;
+using Sprays.Net.Packets.TextureTransport;
+using Sprays.Resources;
+using System.IO;
 using UnityEngine;
 
 namespace Sprays
 {
     [BepInPlugin("com.mccad00.Sprays", "Sprays", "1.0.0")]
+    [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     public class EntryPoint : BasePlugin
     {
         // The method that gets called when BepInEx tries to load our plugin
@@ -17,13 +24,37 @@ namespace Sprays
             m_Harmony.PatchAll();
             SetupConfig(base.Config);
 
-            NetworkAPI.RegisterEvent<int>("ClearPlayerSpray", NetworkedSprays.OnReceiveClearSprayData);
-            NetworkAPI.RegisterEvent<NetworkedSprays.pReceiveSprayData>("ApplyPlayerSpray", NetworkedSprays.OnReceiveApplySpray);
-            NetworkAPI.RegisterEvent<NetworkedSprays.pSprayData>("PostSprayData", NetworkedSprays.OnReceiveSprayData);
-            NetworkAPI.RegisterEvent<byte>("RequestSprayData", NetworkedSprays.OnReceiveSprayDataRequest);
-            NetworkAPI.RegisterEvent<byte>("ClientReplySprayData", NetworkedSprays.OnReceivePostSprayRequest);
+            // Texture Transport
+            CookieReady.Register();
+            CookieTextureData.Register();
+            RequestTextureData.Register();
+            TextureDataChunk.Register();
 
-            UnhollowerRuntimeLib.ClassInjector.RegisterTypeInIl2Cpp<SprayInputHandler>();
+            AllowSendSprayList.Register();
+            ApplySpray.Register();
+            SendSprayList.Register();
+
+            AssetAPI.OnImplReady += () =>
+            {
+                // TODO: Separate
+                var spraysPath = Path.Combine(Paths.ConfigPath, "sprays");
+                if (!Directory.Exists(spraysPath)) Directory.CreateDirectory(spraysPath);
+
+                foreach (string sprayFile in Directory.EnumerateFiles(spraysPath, "*.png"))
+                {
+                    Spray localSpray = Spray.FromFile(sprayFile);
+                    RuntimeLookup.Sprays.Add(localSpray);
+                    RuntimeLookup.LocalSprays.Add(localSpray);
+                }
+            };
+
+            //NetworkAPI.RegisterEvent<int>("ClearPlayerSpray", NetworkedSprays.OnReceiveClearSprayData);
+            //NetworkAPI.RegisterEvent<NetworkedSprays.pReceiveSprayData>("ApplyPlayerSpray", NetworkedSprays.OnReceiveApplySpray);
+            //NetworkAPI.RegisterEvent<NetworkedSprays.pSprayData>("PostSprayData", NetworkedSprays.OnReceiveSprayData);
+            //NetworkAPI.RegisterEvent<byte>("RequestSprayData", NetworkedSprays.OnReceiveSprayDataRequest);
+            //NetworkAPI.RegisterEvent<byte>("ClientReplySprayData", NetworkedSprays.OnReceivePostSprayRequest);
+
+            AddComponent<SprayInputHandler>();
         }
 
         private static void SetupConfig(ConfigFile config)
