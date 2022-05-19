@@ -10,7 +10,9 @@ using Sprays.Net.Packets.TextureTransport;
 using Sprays.Resources;
 using System;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
+using System.Linq;
 
 namespace Sprays
 {
@@ -40,22 +42,29 @@ namespace Sprays
                 // TODO: Separate ;)
                 var spraysPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GTFO-Modding/Frog/Sprays");
                 L.Error(spraysPath);
-                if (!Directory.Exists(spraysPath)) Directory.CreateDirectory(spraysPath);
-
-                var i = 0;
-
-                foreach (string sprayFile in Directory.EnumerateFiles(spraysPath)) //For loop would be cleaner here but i couldn't figure out how to get the count of EnumerateFiles
+                if (!Directory.Exists(spraysPath))
                 {
-                    Spray localSpray = Spray.FromFile(sprayFile);
+                    Directory.CreateDirectory(spraysPath);
+                    var assembly = Assembly.GetExecutingAssembly();
+
+                    using var defaultSpray = assembly.GetManifestResourceStream("Sprays.assets.ExampleSpray.png");
+                    using var fileStream = File.OpenWrite(Path.Combine(spraysPath, "ExampleSpray.png"));
+
+                    defaultSpray.CopyTo(fileStream);
+                }
+                
+                var loadedSprays = Directory.GetFiles(spraysPath);
+
+                for (var i = 0; i < Math.Min(loadedSprays.Length, Constants.SPRAYLIST_LIMIT); i++)
+                {
+                    Spray localSpray = Spray.FromFile(loadedSprays[i]);
 
                     //RuntimeLookup.Sprays.Add(localSpray);
                     RuntimeLookup.LocalSprays.Add(localSpray);
-                    i++;
-
-                    if (i >= 10) break;
                 }
             };
             SprayInputHandler.Current = AddComponent<SprayInputHandler>();
+            UnhollowerRuntimeLib.ClassInjector.RegisterTypeInIl2Cpp<Spray>();
         }
 
         private static void SetupConfig(ConfigFile config)

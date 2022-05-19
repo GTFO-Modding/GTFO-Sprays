@@ -50,7 +50,7 @@ namespace Sprays.Net.Packets.TextureTransport
 
             for (ushort i = 0; i < chunkCount; i++)
             {
-                Unsafe.CopyBlock(ref chunk[0], ref textureData[i * Constants.TEXTURE_CHUNKSIZE], Constants.TEXTURE_CHUNKSIZE);
+                Unsafe.CopyBlock(ref chunk[0], ref textureData[i * Constants.TEXTURE_CHUNKSIZE], (uint)Math.Min(Constants.TEXTURE_CHUNKSIZE, textureData.Length - (i * Constants.TEXTURE_CHUNKSIZE)));
 
                 TextureDataChunk.Instance.Send(new()
                 {

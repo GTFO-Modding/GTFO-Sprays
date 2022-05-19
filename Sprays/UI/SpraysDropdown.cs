@@ -23,6 +23,7 @@ namespace Sprays.UI
 
             var spraysButton = GameObject.Instantiate(clothesButton, CM_PageLoadout.Current.m_staticContentHolder);
             spraysButton.name = "SpraySelectButton";
+            spraysButton.gameObject.SetActive(true);
 
             spraysButton.transform.localPosition = new(-960, 567.5f, 0);
             spraysButton.transform.FindChild("Box/StretchLineT").localScale = new(0.5f, 1, 1);
@@ -102,6 +103,8 @@ namespace Sprays.UI
 
             lobbyBar.m_popupScrollWindow.InfoBox.SetInfoBox("", "", "", "", "", icon);
             lobbyBar.m_popupScrollWindow.InfoBox.m_infoMainIcon.size = new(2.56f, 2.56f);
+            lobbyBar.m_popupScrollWindow.InfoBox.m_infoMainIcon.sortingOrder = 5;
+            lobbyBar.m_popupScrollWindow.InfoBox.m_infoMainIcon.color = Color.white;
             lobbyBar.m_popupScrollWindow.InfoBox.m_infoMainIcon.transform.localPosition = new(-15, 30, -75);
             lobbyBar.m_popupScrollWindow.InfoBox.m_infoMainIcon.transform.localScale = Vector3.one * 200;
 

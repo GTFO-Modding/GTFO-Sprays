@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using UnhollowerBaseLib;
+using UnhollowerRuntimeLib;
 using UnityEngine;
 using Cache = Sprays.Resources.Cache;
 using Debug = System.Diagnostics.Debug;
@@ -50,7 +52,7 @@ namespace Sprays
         private readonly Decal m_Decal;
         private readonly GameObject m_BackingGameObject;
     }
-    internal class Spray
+    internal class Spray : Il2CppSystem.Object
     {
         public static CellSoundPlayer SoundPlayer
         {
@@ -80,10 +82,16 @@ namespace Sprays
             return instance;
         }
 
-        private Spray(byte[] dataBytes, bool shouldCache = false, string name = "")
+        public Spray(IntPtr pointer) : base(pointer) { }
+
+        private Spray(byte[] dataBytes, bool shouldCache = false, string name = "") : this(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<Spray>.NativeClassPtr))
         {
             if (dataBytes.Length >= Constants.MAX_TEXTURE_SIZE)
                 throw new NotSupportedException("Spray exceeds 4MB Limit! Please purchase Discord Nitro to exceed this limit");
+
+            ClassInjector.DerivedConstructorBody(this);
+            _ = IL2CPP.il2cpp_gchandle_new(Pointer, false);
+
             // Copy the passed data into our buffer
             m_TextureData = new byte[dataBytes.Length];
             dataBytes.CopyTo(m_TextureData, 0);

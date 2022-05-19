@@ -13,7 +13,7 @@ namespace Sprays.Net.Packets
     internal struct pSprayList
     {
         public byte length;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.SPRAYLIST_LIMIT)]
         public pSprayIdentityInfo[] sprays;
     }
     internal class SendSprayList : BasePacket<SendSprayList, pSprayList>

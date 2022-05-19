@@ -26,4 +26,9 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="assets\ExampleSpray.png" />
+  </ItemGroup>
+  
 </Project>

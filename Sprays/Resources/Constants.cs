@@ -12,5 +12,6 @@ namespace Sprays.Resources
 
         public const int SPRAY_WIDTH = 2048;
         public const int SPRAY_HEIGHT = 2048;
+        public const int SPRAYLIST_LIMIT = 10;
     }
 }

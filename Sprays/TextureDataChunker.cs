@@ -43,7 +43,7 @@ namespace Sprays
                 return;
             }
 
-            Unsafe.CopyBlock(ref cookieInfo.textureBuffer[chunk.chunkIdx * Constants.TEXTURE_CHUNKSIZE], ref chunk.chunkData[0], (uint)chunk.chunkData.Length);
+            Unsafe.CopyBlock(ref cookieInfo.textureBuffer[chunk.chunkIdx * Constants.TEXTURE_CHUNKSIZE], ref chunk.chunkData[0], (uint)Math.Min(cookieInfo.textureBuffer.Length - (chunk.chunkIdx * Constants.TEXTURE_CHUNKSIZE), chunk.chunkData.Length));
 
             cookieInfo.lastModified = DateTimeOffset.UtcNow;
             cookieInfo.receivedChunkSum += chunk.chunkIdx;

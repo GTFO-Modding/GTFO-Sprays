@@ -21,7 +21,7 @@ namespace Sprays.Net.Packets
 
         public override void OnReceived(SNet_Player sender, pApplySpray payload)
         {
-            L.Verbose($"{sender.NickName} ({sender.Lookup}) wants to ApplySpray");
+            L.Verbose($"{sender.NickName} ({sender.Lookup}) wants to ApplySpray {Utilities.StringUtils.FromByteArrayAsHex(payload.spray.ChecksumData)}");
             payload.senderSlot = sender.PlayerSlotIndex();
 
             Spray spray = payload.spray.SprayObject;
