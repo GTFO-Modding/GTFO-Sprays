@@ -18,7 +18,11 @@ namespace Sprays
             if (!PlayerManager.HasLocalPlayerAgent()) return;
             if (FocusStateManager.CurrentState != eFocusState.FPS) return;
 
-            if(m_PickedSpray == null) m_PickedSpray = RuntimeLookup.LocalSprays[LOCAL_SPRAY_IDX];
+            if (m_PickedSpray == null || m_ReloadSpray == true)
+            {
+                m_ReloadSpray = false;
+                m_PickedSpray = RuntimeLookup.LocalSprays[m_SprayIndex];
+            }
 
             var localPlayer = PlayerManager.GetLocalPlayerAgent();
             var rayHit = localPlayer.FPSCamera.m_camRayHit;
@@ -33,8 +37,10 @@ namespace Sprays
             m_PickedSpray.Apply(packet);
         }
 
-        // TODO: Remove const and add UI for picking sprays
+        public static SprayInputHandler Current;
+
         private Spray m_PickedSpray = null;
-        private const int LOCAL_SPRAY_IDX = 0;
+        public bool m_ReloadSpray = false;
+        public int m_SprayIndex = 0;
     }
 }

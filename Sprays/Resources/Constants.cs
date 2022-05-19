@@ -6,7 +6,6 @@ namespace Sprays.Resources
 {
     internal static class Constants
     {
-        // NOTE: This is currently necessary for chunk receiving
         public const int MAX_TEXTURE_SIZE = 4194304;
 
         public const int TEXTURE_CHUNKSIZE = 4096;

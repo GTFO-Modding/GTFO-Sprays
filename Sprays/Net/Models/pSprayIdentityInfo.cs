@@ -19,8 +19,6 @@ namespace Sprays.Net.Models
                 foreach (Spray spray in RuntimeLookup.Sprays)
                     if (spray.Identity == this) return spray;
 
-                // RuntimeLookup.Sprays [currently] contains the LocalSpray, so this call isn't necessary
-                // but we'll do it for good measure
                 return LocalSprayObject;
             }
         }

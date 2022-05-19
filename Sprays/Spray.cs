@@ -42,6 +42,11 @@ namespace Sprays
             Spray.SoundPlayer.Post(EVENTS.MEDSPRAYLOOPEND, packet.position);
         }
 
+        public void ReloadMaterial(Spray spray)
+        {
+            m_Decal.m_decalMaterial = spray.Material;
+        }
+
         private readonly Decal m_Decal;
         private readonly GameObject m_BackingGameObject;
     }
@@ -65,19 +70,19 @@ namespace Sprays
         internal byte[] TextureData => m_TextureData;
 
         public static Spray FromBytes(byte[] dataBytes) => new(dataBytes, true);
-        public static Spray FromFile(string filePath) => new(File.ReadAllBytes(filePath), false);
+        public static Spray FromFile(string filePath) => new(File.ReadAllBytes(filePath), false, Path.GetFileName(filePath));
 
         public SprayInstance Apply(pApplySpray applyData)
         {
             Debug.Assert(applyData.spray == m_Identity, "");
-            SprayInstance instance = Instantiate();
+            SprayInstance instance = Instantiate(applyData.senderSlot);
             instance.ApplyFromPacket(applyData);
             return instance;
         }
 
-        private Spray(byte[] dataBytes, bool shouldCache = false)
+        private Spray(byte[] dataBytes, bool shouldCache = false, string name = "")
         {
-            if (dataBytes.Length >= 4194304)
+            if (dataBytes.Length >= Constants.MAX_TEXTURE_SIZE)
                 throw new NotSupportedException("Spray exceeds 4MB Limit! Please purchase Discord Nitro to exceed this limit");
             // Copy the passed data into our buffer
             m_TextureData = new byte[dataBytes.Length];
@@ -96,9 +101,30 @@ namespace Sprays
             m_Material.mainTexture = m_Texture;
             if (shouldCache)
                 Resources.Cache.CacheSpray(this);
+
+            m_Name = name;
         }
 
-        private SprayInstance Instantiate() => new(this);
+        private SprayInstance Instantiate(int slot)
+        {
+            SprayInstance sprayToApply;
+
+            if (s_SpraysByPlayer[slot].Count < EntryPoint.SprayLimit.Value)
+            {
+                sprayToApply = new(this);
+                s_SpraysByPlayer[slot].Add(sprayToApply);
+            }
+            else
+            {
+                sprayToApply = s_SpraysByPlayer[slot][s_SprayIndexPerPlayer[slot]];
+                sprayToApply.ReloadMaterial(this);
+            }
+
+            s_SprayIndexPerPlayer[slot]++;
+            s_SprayIndexPerPlayer[slot] = s_SprayIndexPerPlayer[slot] % EntryPoint.SprayLimit.Value;
+
+            return sprayToApply;
+        }
         private pSprayIdentityInfo BuildIdentity(byte[] data, int offset, int length)
         {
             return new()
@@ -110,11 +136,17 @@ namespace Sprays
         private readonly byte[] m_TextureData;
         private readonly Material m_Material;
         private readonly Texture2D m_Texture;
+        public readonly String m_Name;
         // How the spray is identified across the network
         private readonly pSprayIdentityInfo m_Identity;
 
         private static CellSoundPlayer s_SoundPlayer = null;
         // NOTE: Might not be good to obtain on cctor, move to deferred if issues arise
         private static readonly Shader s_DecalShader = Shader.Find("Cell/Decal/DecalDeferredBlend");
+
+
+
+        public static List<SprayInstance>[] s_SpraysByPlayer = new List<SprayInstance>[] { new(), new(), new(), new() };
+        public static int[] s_SprayIndexPerPlayer = new int[4];
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GTFO.API;
+using Player;
 using SNetwork;
 using Sprays.Net.Models;
 using System.Runtime.InteropServices;
@@ -11,6 +12,7 @@ namespace Sprays.Net.Packets
         public pSprayIdentityInfo spray;
         public pVector3 position;
         public pVector3 forward;
+        public int senderSlot;
     }
     internal class ApplySpray : BasePacket<ApplySpray, pApplySpray>
     {
@@ -20,6 +22,8 @@ namespace Sprays.Net.Packets
         public override void OnReceived(SNet_Player sender, pApplySpray payload)
         {
             L.Verbose($"{sender.NickName} ({sender.Lookup}) wants to ApplySpray");
+            payload.senderSlot = sender.PlayerSlotIndex();
+
             Spray spray = payload.spray.SprayObject;
             if(spray == null)
             {
